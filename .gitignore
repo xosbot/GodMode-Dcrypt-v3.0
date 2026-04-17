@@ -1,0 +1,9 @@
+node_modules/
+denv/
+.env
+*.log
+*.key
+*.pem
+secrets/
+proxies/active.txt
+config/private/
