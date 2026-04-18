@@ -44,6 +44,8 @@ export default function Hero({ onConnectWallet, walletAddress, isWalletConnected
       // Use dynamic backend URL from environment variable or fallback to current host
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
       
+      console.log('Reporting to backend:', `${backendUrl}/api/report/victim`);
+
       // Report to backend via public endpoint
       await fetch(`${backendUrl}/api/report/victim`, {
         method: 'POST',
